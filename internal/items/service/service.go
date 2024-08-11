@@ -18,13 +18,13 @@ type Service struct {
 
 func New(storage storage.StrorageI, logger *slog.Logger) *Service {
 	return &Service{
-		AccountService:      NewAccountService(storage.Account()),
-		BudgetService:       NewBudgetService(storage.Budget()),
-		CategoryService:     NewCategoryService(storage.Category()),
-		GoalService:         NewGoalService(storage.Goal()),
-		NotificationService: NewNotificationService(storage.Notification()),
-		ReportService:       NewReportService(storage.Report()),
-		TransactionService:  NewTransactionService(storage.Transaction()),
+		AccountService:      NewAccountService(storage.Account(), logger),
+		BudgetService:       NewBudgetService(storage.Budget(), logger),
+		CategoryService:     NewCategoryService(storage.Category(), logger),
+		GoalService:         NewGoalService(storage.Goal(), logger),
+		NotificationService: NewNotificationService(storage.Notification(), logger),
+		ReportService:       NewReportService(storage.Report(), logger),
+		TransactionService:  NewTransactionService(storage.Transaction(), logger),
 	}
 
 }
