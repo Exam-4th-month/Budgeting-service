@@ -1,6 +1,6 @@
-{"time":"2024-08-11T14:17:01.653256005+05:00","level":"INFO","msg":"Shutting down, waiting for consumers to finish"}
-{"time":"2024-08-11T14:17:01.653434045+05:00","level":"INFO","msg":"Context done, stopping consumer","consumer":"transaction_created"}
-{"time":"2024-08-11T14:17:01.653464166+05:00","level":"INFO","msg":"Context done, stopping consumer","consumer":"budget_updated"}
-{"time":"2024-08-11T14:17:01.653471472+05:00","level":"INFO","msg":"Context done, stopping consumer","consumer":"goal_progress_updated"}
-{"time":"2024-08-11T14:17:01.653580905+05:00","level":"INFO","msg":"Context done, stopping consumer","consumer":"notification_created"}
-{"time":"2024-08-11T14:17:01.653667272+05:00","level":"INFO","msg":"All consumers have stopped"}
+{"time":"2024-08-11T22:35:49.465783296+05:00","level":"INFO","msg":"Shutting down, waiting for consumers to finish"}
+{"time":"2024-08-11T22:35:49.465922878+05:00","level":"INFO","msg":"Context done, stopping consumer","consumer":"transaction_created"}
+{"time":"2024-08-11T22:35:49.465953703+05:00","level":"INFO","msg":"Context done, stopping consumer","consumer":"goal_progress_updated"}
+{"time":"2024-08-11T22:35:49.465959358+05:00","level":"INFO","msg":"Context done, stopping consumer","consumer":"budget_updated"}
+{"time":"2024-08-11T22:35:49.466130227+05:00","level":"INFO","msg":"Context done, stopping consumer","consumer":"notification_created"}
+{"time":"2024-08-11T22:35:49.466220412+05:00","level":"INFO","msg":"All consumers have stopped"}
