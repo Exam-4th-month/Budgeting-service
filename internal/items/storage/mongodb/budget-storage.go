@@ -37,13 +37,25 @@ func (s *BudgetStorage) CreateBudget(ctx context.Context, req *pb.CreateBudgetRe
 	budgetCollection := s.mongodb.Collection("budgets")
 	created_at := time.Now()
 
+	startDate, err := time.Parse("2006-01-02", req.StartDate)
+	if err != nil {
+		s.logger.Error("Error parsing start date", slog.Any("error", err))
+		return nil, err
+	}
+
+	endDate, err := time.Parse("2006-01-02", req.EndDate)
+	if err != nil {
+		s.logger.Error("Error parsing end date", slog.Any("error", err))
+		return nil, err
+	}
+
 	budgetDoc := bson.D{
 		{Key: "user_id", Value: req.UserId},
 		{Key: "category_id", Value: req.CategoryId},
 		{Key: "amount", Value: req.Amount},
 		{Key: "period", Value: req.Period},
-		{Key: "start_date", Value: req.StartDate},
-		{Key: "end_date", Value: req.EndDate},
+		{Key: "start_date", Value: startDate},
+		{Key: "end_date", Value: endDate},
 		{Key: "created_at", Value: created_at},
 		{Key: "updated_at", Value: created_at},
 		{Key: "deleted_at", Value: nil},
@@ -94,10 +106,10 @@ func (s *BudgetStorage) GetBudgets(ctx context.Context, req *pb.GetBudgetsReques
 			Id:         budget["_id"].(primitive.ObjectID).Hex(),
 			UserId:     budget["user_id"].(string),
 			CategoryId: budget["category_id"].(string),
-			Amount:     budget["amount"].(float32),
+			Amount:     float32(budget["amount"].(float64)),
 			Period:     budget["period"].(string),
-			StartDate:  budget["start_date"].(string),
-			EndDate:    budget["end_date"].(string),
+			StartDate:  budget["start_date"].(primitive.DateTime).Time().String(),
+			EndDate:    budget["end_date"].(primitive.DateTime).Time().String(),
 			CreatedAt:  budget["created_at"].(primitive.DateTime).Time().String(),
 			UpdatedAt:  budget["updated_at"].(primitive.DateTime).Time().String(),
 		})
@@ -138,10 +150,10 @@ func (s *BudgetStorage) GetBudgetById(ctx context.Context, req *pb.GetBudgetById
 		Id:         budget["_id"].(primitive.ObjectID).Hex(),
 		UserId:     budget["user_id"].(string),
 		CategoryId: budget["category_id"].(string),
-		Amount:     budget["amount"].(float32),
+		Amount:     float32(budget["amount"].(float64)),
 		Period:     budget["period"].(string),
-		StartDate:  budget["start_date"].(string),
-		EndDate:    budget["end_date"].(string),
+		StartDate:  budget["start_date"].(primitive.DateTime).Time().String(),
+		EndDate:    budget["end_date"].(primitive.DateTime).Time().String(),
 		CreatedAt:  budget["created_at"].(primitive.DateTime).Time().String(),
 		UpdatedAt:  budget["updated_at"].(primitive.DateTime).Time().String(),
 	}, nil
@@ -158,7 +170,7 @@ func (s *BudgetStorage) UpdateBudget(ctx context.Context, req *pb.UpdateBudgetRe
 
 	filter := bson.D{
 		{Key: "_id", Value: objID},
-		{Key: "deleted_at", Value: bson.D{{Key: "$exists", Value: false}}},
+		{Key: "deleted_at", Value: bson.D{{Key: "$eq", Value: nil}}},
 	}
 
 	updateFields := bson.D{}
@@ -169,10 +181,20 @@ func (s *BudgetStorage) UpdateBudget(ctx context.Context, req *pb.UpdateBudgetRe
 		updateFields = append(updateFields, bson.E{Key: "period", Value: req.Period})
 	}
 	if req.StartDate != "" {
-		updateFields = append(updateFields, bson.E{Key: "start_date", Value: req.StartDate})
+		startDate, err := time.Parse("2006-01-02", req.StartDate)
+		if err != nil {
+			s.logger.Error("Error parsing start date", slog.Any("error", err))
+			return nil, err
+		}
+		updateFields = append(updateFields, bson.E{Key: "start_date", Value: startDate})
 	}
 	if req.EndDate != "" {
-		updateFields = append(updateFields, bson.E{Key: "end_date", Value: req.EndDate})
+		endDate, err := time.Parse("2006-01-02", req.StartDate)
+		if err != nil {
+			s.logger.Error("Error parsing start date", slog.Any("error", err))
+			return nil, err
+		}
+		updateFields = append(updateFields, bson.E{Key: "end_date", Value: endDate})
 	}
 	if len(updateFields) > 0 {
 		updateFields = append(updateFields, bson.E{Key: "updated_at", Value: time.Now()})
@@ -205,10 +227,10 @@ func (s *BudgetStorage) UpdateBudget(ctx context.Context, req *pb.UpdateBudgetRe
 		Id:         updatedBudget["_id"].(primitive.ObjectID).Hex(),
 		UserId:     updatedBudget["user_id"].(string),
 		CategoryId: updatedBudget["category_id"].(string),
-		Amount:     updatedBudget["amount"].(float32),
+		Amount:     float32(updatedBudget["amount"].(float64)),
 		Period:     updatedBudget["period"].(string),
-		StartDate:  updatedBudget["start_date"].(string),
-		EndDate:    updatedBudget["end_date"].(string),
+		StartDate:  updatedBudget["start_date"].(primitive.DateTime).Time().String(),
+		EndDate:    updatedBudget["end_date"].(primitive.DateTime).Time().String(),
 		CreatedAt:  updatedBudget["created_at"].(primitive.DateTime).Time().String(),
 		UpdatedAt:  updatedBudget["updated_at"].(primitive.DateTime).Time().String(),
 	}, nil

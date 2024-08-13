@@ -1,8 +1,6 @@
-{"time":"2024-08-13T13:55:24.84420593+05:00","level":"INFO","msg":"CreateTransaction","req":{"user_id":"1b1dc32c-8553-4df9-a1e8-125e2dc3c21e","account_id":"string","category_id":"string","amount":16,"type":"string","description":"string","date":"string"}}
-{"time":"2024-08-13T13:55:24.844302298+05:00","level":"INFO","msg":"CreateTransaction","req":{"user_id":"1b1dc32c-8553-4df9-a1e8-125e2dc3c21e","account_id":"string","category_id":"string","amount":16,"type":"string","description":"string","date":"string"}}
-{"time":"2024-08-13T15:34:02.927810987+05:00","level":"INFO","msg":"Shutting down, waiting for consumers to finish"}
-{"time":"2024-08-13T15:34:02.928157795+05:00","level":"INFO","msg":"Context done, stopping consumer","consumer":"budget_updated"}
-{"time":"2024-08-13T15:34:02.928238877+05:00","level":"INFO","msg":"Context done, stopping consumer","consumer":"transaction_created"}
-{"time":"2024-08-13T15:34:02.928265856+05:00","level":"INFO","msg":"Context done, stopping consumer","consumer":"goal_progress_updated"}
-{"time":"2024-08-13T15:34:02.928287328+05:00","level":"INFO","msg":"Context done, stopping consumer","consumer":"notification_created"}
-{"time":"2024-08-13T15:34:02.928316729+05:00","level":"INFO","msg":"All consumers have stopped"}
+{"time":"2024-08-13T19:09:04.292995257+05:00","level":"INFO","msg":"Shutting down, waiting for consumers to finish"}
+{"time":"2024-08-13T19:09:04.293177775+05:00","level":"INFO","msg":"Context done, stopping consumer","consumer":"goal_progress_updated"}
+{"time":"2024-08-13T19:09:04.293209515+05:00","level":"INFO","msg":"Context done, stopping consumer","consumer":"budget_updated"}
+{"time":"2024-08-13T19:09:04.293228144+05:00","level":"INFO","msg":"Context done, stopping consumer","consumer":"notification_created"}
+{"time":"2024-08-13T19:09:04.293244977+05:00","level":"INFO","msg":"Context done, stopping consumer","consumer":"transaction_created"}
+{"time":"2024-08-13T19:09:04.293264226+05:00","level":"INFO","msg":"All consumers have stopped"}

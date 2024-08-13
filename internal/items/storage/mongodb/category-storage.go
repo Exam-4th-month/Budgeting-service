@@ -69,7 +69,6 @@ func (s *CategoryStorage) GetCategories(ctx context.Context, req *pb.GetCategori
 	s.logger.Info("GetCategories", slog.String("req", req.String()))
 	categoryCollection := s.mongodb.Collection("categories")
 
-	// Foydalanuvchining barcha kategoriyalarini olish
 	filter := bson.D{{Key: "user_id", Value: req.UserId}}
 
 	cursor, err := categoryCollection.Find(ctx, filter)
@@ -115,7 +114,6 @@ func (s *CategoryStorage) GetCategoryById(ctx context.Context, req *pb.GetCatego
 		return nil, err
 	}
 
-	// Kategoriyani ID bo'yicha qidirish
 	filter := bson.D{{Key: "_id", Value: objID}}
 
 	var category bson.M
@@ -123,7 +121,7 @@ func (s *CategoryStorage) GetCategoryById(ctx context.Context, req *pb.GetCatego
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			s.logger.Error(err.Error())
-			return nil, nil // Kategoriya topilmadi
+			return nil, nil 
 		}
 		s.logger.Error(err.Error())
 		return nil, err
@@ -148,13 +146,11 @@ func (s *CategoryStorage) UpdateCategory(ctx context.Context, req *pb.UpdateCate
 		return nil, err
 	}
 
-	// Kategoriyani yangilash uchun ID va `deleted_at` bo'sh bo'lishi filtr
 	filter := bson.D{
 		{Key: "_id", Value: objID},
-		{Key: "deleted_at", Value: bson.D{{Key: "$exists", Value: false}}},
+		{Key: "deleted_at", Value: bson.D{{Key: "$eq", Value: nil}}},
 	}
 
-	// Yangilanish uchun maydonlarni dinamik ravishda qo'shish
 	updateFields := bson.D{}
 	if req.Name != "" {
 		updateFields = append(updateFields, bson.E{Key: "name", Value: req.Name})
@@ -167,7 +163,6 @@ func (s *CategoryStorage) UpdateCategory(ctx context.Context, req *pb.UpdateCate
 	}
 
 	if len(updateFields) == 0 {
-		// Yangilanish uchun hech qanday maydon mavjud emas
 		s.logger.Info("No fields to update")
 		return nil, nil
 	}
@@ -178,7 +173,7 @@ func (s *CategoryStorage) UpdateCategory(ctx context.Context, req *pb.UpdateCate
 	if res.Err() != nil {
 		if res.Err() == mongo.ErrNoDocuments {
 			s.logger.Error(res.Err().Error())
-			return nil, nil // Kategoriya topilmadi
+			return nil, nil 
 		}
 		s.logger.Error(res.Err().Error())
 		return nil, res.Err()
@@ -209,7 +204,6 @@ func (s *CategoryStorage) DeleteCategory(ctx context.Context, req *pb.DeleteCate
 		return nil, err
 	}
 
-	// Kategoriyani ID bo'yicha topish va `deleted_at` maydonini yangilash
 	filter := bson.D{{Key: "_id", Value: objID}}
 	update := bson.D{
 		{Key: "$set", Value: bson.D{

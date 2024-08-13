@@ -39,12 +39,18 @@ func (s *GoalStorage) CreateGoal(ctx context.Context, req *pb.CreateGoalRequest)
 	goalCollecton := s.mongodb.Collection("goals")
 	created_at := time.Now()
 
+	deadline, err := time.Parse("2006-01-02", req.Deadline)
+	if err != nil {
+		s.logger.Error("Error parsing start date", slog.Any("error", err))
+		return nil, err
+	}
+
 	goalDoc := bson.D{
 		{Key: "user_id", Value: req.UserId},
 		{Key: "name", Value: req.Name},
 		{Key: "target_amount", Value: req.TargetAmount},
 		{Key: "current_amount", Value: req.CurrentAmount},
-		{Key: "deadline", Value: req.Deadline},
+		{Key: "deadline", Value: deadline},
 		{Key: "status", Value: req.Status},
 		{Key: "created_at", Value: created_at},
 		{Key: "updated_at", Value: created_at},
@@ -98,7 +104,7 @@ func (s *GoalStorage) GetGoals(ctx context.Context, req *pb.GetGoalsRequest) (*p
 			Name:          goal["name"].(string),
 			TargetAmount:  float32(goal["target_amount"].(float64)),
 			CurrentAmount: float32(goal["current_amount"].(float64)),
-			Deadline:      goal["deadline"].(string),
+			Deadline:      goal["deadline"].(primitive.DateTime).Time().String(),
 			Status:        goal["status"].(string),
 			CreatedAt:     goal["created_at"].(primitive.DateTime).Time().String(),
 			UpdatedAt:     goal["updated_at"].(primitive.DateTime).Time().String(),
@@ -142,7 +148,7 @@ func (s *GoalStorage) GetGoalById(ctx context.Context, req *pb.GetGoalByIdReques
 		Name:          goal["name"].(string),
 		TargetAmount:  float32(goal["target_amount"].(float64)),
 		CurrentAmount: float32(goal["current_amount"].(float64)),
-		Deadline:      goal["deadline"].(string),
+		Deadline:      goal["deadline"].(primitive.DateTime).Time().String(),
 		Status:        goal["status"].(string),
 		CreatedAt:     goal["created_at"].(primitive.DateTime).Time().String(),
 		UpdatedAt:     goal["updated_at"].(primitive.DateTime).Time().String(),
@@ -161,7 +167,7 @@ func (s *GoalStorage) UpdateGoal(ctx context.Context, req *pb.UpdateGoalRequest)
 
 	filter := bson.D{
 		{Key: "_id", Value: objID},
-		{Key: "deleted_at", Value: bson.D{{Key: "$exists", Value: false}}},
+		{Key: "deleted_at", Value: bson.D{{Key: "$eq", Value: nil}}},
 	}
 
 	updateFields := bson.D{}
@@ -175,7 +181,12 @@ func (s *GoalStorage) UpdateGoal(ctx context.Context, req *pb.UpdateGoalRequest)
 		updateFields = append(updateFields, bson.E{Key: "current_amount", Value: req.CurrentAmount})
 	}
 	if req.Deadline != "" {
-		updateFields = append(updateFields, bson.E{Key: "deadline", Value: req.Deadline})
+		deadline, err := time.Parse("2006-01-02", req.Deadline)
+		if err != nil {
+			s.logger.Error("Error parsing start date", slog.Any("error", err))
+			return nil, err
+		}
+		updateFields = append(updateFields, bson.E{Key: "deadline", Value: deadline})
 	}
 	if req.Status != "" {
 		updateFields = append(updateFields, bson.E{Key: "status", Value: req.Status})
@@ -213,7 +224,7 @@ func (s *GoalStorage) UpdateGoal(ctx context.Context, req *pb.UpdateGoalRequest)
 		Name:          updatedGoal["name"].(string),
 		TargetAmount:  float32(updatedGoal["target_amount"].(float64)),
 		CurrentAmount: float32(updatedGoal["current_amount"].(float64)),
-		Deadline:      updatedGoal["deadline"].(string),
+		Deadline:      updatedGoal["deadline"].(primitive.DateTime).Time().String(),
 		Status:        updatedGoal["status"].(string),
 		CreatedAt:     updatedGoal["created_at"].(primitive.DateTime).Time().String(),
 		UpdatedAt:     updatedGoal["updated_at"].(primitive.DateTime).Time().String(),

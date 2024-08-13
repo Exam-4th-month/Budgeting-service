@@ -29,3 +29,13 @@ func (s *ReportService) GetIncomeReport(ctx context.Context, req *pb.GetIncomeRe
 	s.logger.Info("GetIncomeReport")
 	return s.reportstorage.GetIncomeReport(ctx, req)
 }
+
+func (s *ReportService) GetBudgetPerformanceReport(ctx context.Context, req *pb.GetBudgetPerformanceReportRequest) (*pb.BudgetPerformanceReportResponse, error) {
+	s.logger.Info("GetBudgetPerformanceReport")
+	return s.reportstorage.GetBudgetPerformanceReport(ctx, req)
+}
+
+func (s *ReportService) GetGoalProgressReport(ctx context.Context, req *pb.GetGoalProgressReportRequest) (*pb.GoalProgressReportResponse, error) {
+	s.logger.Info("GetGoalProgressReport")
+	return s.reportstorage.GetGoalProgressReport(ctx, req)
+}

@@ -48,17 +48,15 @@ func (s *AccountStorage) CreateAccount(ctx context.Context, req *pb.CreateAccoun
 		{Key: "deleted_at", Value: nil},
 	}
 
-	// Hujjatni MongoDB ga kiriting
 	res, err := accountCollection.InsertOne(ctx, accountDoc)
 	if err != nil {
 		s.logger.Error("error while inserting account", slog.Any("error", err))
 		return nil, err
 	}
 
-	// Javob qaytarish (InsertOne natijasidan _id ni olish)
 	accountID := res.InsertedID.(primitive.ObjectID)
 
-	return &pb.AccountResponse{
+	account := pb.AccountResponse{
 		Id:        accountID.Hex(),
 		UserId:    req.UserId,
 		Name:      req.Name,
@@ -66,14 +64,20 @@ func (s *AccountStorage) CreateAccount(ctx context.Context, req *pb.CreateAccoun
 		Balance:   req.Balance,
 		Currency:  req.Currency,
 		CreatedAt: created_at.String(),
-	}, nil
+	}
+
+	if _, err := s.redis.StoreAccountInRedis(ctx, &account); err != nil {
+		s.logger.Error("Error storing account in Redis:", slog.String("err: ", err.Error()))
+		return nil, err
+	}
+
+	return &account, nil
 }
 
 func (s *AccountStorage) GetAccounts(ctx context.Context, req *pb.GetAccountsRequest) (*pb.AccountsResponse, error) {
 	s.logger.Info("GetAccounts", "req", req)
 	accountCollection := s.mongodb.Collection("accounts")
 
-	// Foydalanuvchining barcha hisoblarini filtr qilish
 	filter := bson.D{{Key: "user_id", Value: req.UserId}}
 
 	cursor, err := accountCollection.Find(ctx, filter)
@@ -96,7 +100,7 @@ func (s *AccountStorage) GetAccounts(ctx context.Context, req *pb.GetAccountsReq
 			UserId:    account["user_id"].(string),
 			Name:      account["name"].(string),
 			Type:      account["type"].(string),
-			Balance:   account["balance"].(float32),
+			Balance:   float32(account["balance"].(float64)),
 			Currency:  account["currency"].(string),
 			CreatedAt: account["created_at"].(primitive.DateTime).Time().String(),
 			UpdatedAt: account["updated_at"].(primitive.DateTime).Time().String(),
@@ -115,13 +119,22 @@ func (s *AccountStorage) GetAccountById(ctx context.Context, req *pb.GetAccountB
 	s.logger.Info("GetAccountById", "req: ", req.Id)
 	accountCollection := s.mongodb.Collection("accounts")
 
+	athlete, err := s.redis.GetAccountFromRedis(ctx, req.Id)
+	if err != nil {
+		s.logger.Error("Error getting account from Redis:", slog.String("err: ", err.Error()))
+		return nil, err
+	}
+	if athlete != nil {
+		s.logger.Info("Account found in Redis")
+		return athlete, nil
+	}
+
 	objID, err := primitive.ObjectIDFromHex(req.Id)
 	if err != nil {
 		s.logger.Error(err.Error())
 		return nil, err
 	}
 
-	// Hisobni ID bo'yicha qidirish
 	filter := bson.D{{Key: "_id", Value: objID}}
 
 	var account bson.M
@@ -129,7 +142,7 @@ func (s *AccountStorage) GetAccountById(ctx context.Context, req *pb.GetAccountB
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			s.logger.Error(err.Error())
-			return nil, nil // Hisob topilmadi
+			return nil, nil
 		}
 		s.logger.Error(err.Error())
 		return nil, err
@@ -140,7 +153,7 @@ func (s *AccountStorage) GetAccountById(ctx context.Context, req *pb.GetAccountB
 		UserId:    account["user_id"].(string),
 		Name:      account["name"].(string),
 		Type:      account["type"].(string),
-		Balance:   account["balance"].(float32),
+		Balance:   float32(account["balance"].(float64)),
 		Currency:  account["currency"].(string),
 		CreatedAt: account["created_at"].(primitive.DateTime).Time().String(),
 		UpdatedAt: account["updated_at"].(primitive.DateTime).Time().String(),
@@ -152,17 +165,15 @@ func (s *AccountStorage) UpdateAccount(ctx context.Context, req *pb.UpdateAccoun
 
 	objID, err := primitive.ObjectIDFromHex(req.Id)
 	if err != nil {
-		s.logger.Error(err.Error())
+		s.logger.Error("Invalid ObjectID: ", err.Error(), req.Id)
 		return nil, err
 	}
 
-	// Hisobni yangilash uchun ID va `deleted_at` bo'sh bo'lishi filtr
 	filter := bson.D{
 		{Key: "_id", Value: objID},
-		{Key: "deleted_at", Value: bson.D{{Key: "$exists", Value: false}}},
+		{Key: "deleted_at", Value: bson.D{{Key: "$eq", Value: nil}}},
 	}
 
-	// Yangilanish uchun maydonlarni dinamik ravishda qo'shish
 	updateFields := bson.D{}
 	if req.Name != "" {
 		updateFields = append(updateFields, bson.E{Key: "name", Value: req.Name})
@@ -176,13 +187,11 @@ func (s *AccountStorage) UpdateAccount(ctx context.Context, req *pb.UpdateAccoun
 	if req.Currency != "" {
 		updateFields = append(updateFields, bson.E{Key: "currency", Value: req.Currency})
 	}
+
 	if len(updateFields) > 0 {
 		updateFields = append(updateFields, bson.E{Key: "updated_at", Value: time.Now()})
-	}
-
-	if len(updateFields) == 0 {
-		// Yangilanish uchun hech qanday maydon mavjud emas
-		s.logger.Info("No fields to update")
+	} else {
+		s.logger.Info("No fields to update. Exiting function.")
 		return nil, nil
 	}
 
@@ -191,25 +200,27 @@ func (s *AccountStorage) UpdateAccount(ctx context.Context, req *pb.UpdateAccoun
 	res := accountCollection.FindOneAndUpdate(ctx, filter, update, options.FindOneAndUpdate().SetReturnDocument(options.After))
 	if res.Err() != nil {
 		if res.Err() == mongo.ErrNoDocuments {
-			s.logger.Error(res.Err().Error())
-			return nil, nil // Hisob topilmadi
+			s.logger.Error("Account not found or already deleted: ", res.Err().Error(), req.Id)
+			return nil, nil
 		}
-		s.logger.Error(res.Err().Error())
+		s.logger.Error("Failed to update account: ", res.Err().Error(), req.Id)
 		return nil, res.Err()
 	}
 
 	var updatedAccount bson.M
 	if err = res.Decode(&updatedAccount); err != nil {
-		s.logger.Error(err.Error())
+		s.logger.Error("Failed to decode updated account: ", err.Error(), req.Id)
 		return nil, err
 	}
+
+	s.logger.Info("Account updated successfully: ")
 
 	return &pb.AccountResponse{
 		Id:        updatedAccount["_id"].(primitive.ObjectID).Hex(),
 		UserId:    updatedAccount["user_id"].(string),
 		Name:      updatedAccount["name"].(string),
 		Type:      updatedAccount["type"].(string),
-		Balance:   updatedAccount["balance"].(float32),
+		Balance:   float32(updatedAccount["balance"].(float64)),
 		Currency:  updatedAccount["currency"].(string),
 		CreatedAt: updatedAccount["created_at"].(primitive.DateTime).Time().String(),
 		UpdatedAt: updatedAccount["updated_at"].(primitive.DateTime).Time().String(),
@@ -225,7 +236,6 @@ func (s *AccountStorage) DeleteAccount(ctx context.Context, req *pb.DeleteAccoun
 		return nil, err
 	}
 
-	// Hisobni ID bo'yicha topish va `deleted_at` maydonini yangilash
 	filter := bson.D{{Key: "_id", Value: objID}}
 	update := bson.D{
 		{Key: "$set", Value: bson.D{
