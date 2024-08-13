@@ -43,7 +43,9 @@ func (s *AccountStorage) CreateAccount(ctx context.Context, req *pb.CreateAccoun
 		{Key: "type", Value: req.Type},
 		{Key: "balance", Value: req.Balance},
 		{Key: "currency", Value: req.Currency},
-		{Key: "created_at", Value: time.Now()},
+		{Key: "created_at", Value: created_at},
+		{Key: "updated_at", Value: created_at},
+		{Key: "deleted_at", Value: nil},
 	}
 
 	// Hujjatni MongoDB ga kiriting
@@ -110,7 +112,7 @@ func (s *AccountStorage) GetAccounts(ctx context.Context, req *pb.GetAccountsReq
 }
 
 func (s *AccountStorage) GetAccountById(ctx context.Context, req *pb.GetAccountByIdRequest) (*pb.AccountResponse, error) {
-	s.logger.Info("GetAccountById", "req: ",req.Id)
+	s.logger.Info("GetAccountById", "req: ", req.Id)
 	accountCollection := s.mongodb.Collection("accounts")
 
 	objID, err := primitive.ObjectIDFromHex(req.Id)

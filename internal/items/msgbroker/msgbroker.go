@@ -2,7 +2,6 @@ package msgbroker
 
 import (
 	"context"
-	"encoding/json"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -17,6 +16,7 @@ import (
 	transaction_pb "budgeting-service/genproto/transaction"
 
 	amqp "github.com/rabbitmq/amqp091-go"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -73,7 +73,7 @@ func (m *MsgBroker) consumeMessages(ctx context.Context, messages <-chan amqp.De
 			switch logPrefix {
 			case "transaction_created":
 				var req transaction_pb.CreateTransactionRequest
-				if err := json.Unmarshal(val.Body, &req); err != nil {
+				if err := protojson.Unmarshal(val.Body, &req); err != nil {
 					m.logger.Error("Error while unmarshaling data", "error", err)
 					val.Nack(false, false)
 					continue
@@ -81,7 +81,7 @@ func (m *MsgBroker) consumeMessages(ctx context.Context, messages <-chan amqp.De
 				response, err = m.service.TransactionService.CreateTransaction(ctx, &req)
 			case "budget_updated":
 				var req budget_pb.UpdateBudgetRequest
-				if err := json.Unmarshal(val.Body, &req); err != nil {
+				if err := protojson.Unmarshal(val.Body, &req); err != nil {
 					m.logger.Error("Error while unmarshaling data", "error", err)
 					val.Nack(false, false)
 					continue
@@ -89,7 +89,7 @@ func (m *MsgBroker) consumeMessages(ctx context.Context, messages <-chan amqp.De
 				response, err = m.service.BudgetService.UpdateBudget(ctx, &req)
 			case "goal_progress_updated":
 				var req goal_pb.UpdateGoalRequest
-				if err := json.Unmarshal(val.Body, &req); err != nil {
+				if err := protojson.Unmarshal(val.Body, &req); err != nil {
 					m.logger.Error("Error while unmarshaling data", "error", err)
 					val.Nack(false, false)
 					continue
@@ -97,7 +97,7 @@ func (m *MsgBroker) consumeMessages(ctx context.Context, messages <-chan amqp.De
 				response, err = m.service.GoalService.UpdateGoal(ctx, &req)
 			case "notification_created":
 				var req notification_pb.GetNotificationsRequest
-				if err := json.Unmarshal(val.Body, &req); err != nil {
+				if err := protojson.Unmarshal(val.Body, &req); err != nil {
 					m.logger.Error("Error while unmarshaling data", "error", err)
 					val.Nack(false, false)
 					continue

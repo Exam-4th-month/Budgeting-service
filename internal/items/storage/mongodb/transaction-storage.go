@@ -48,6 +48,8 @@ func (s *TransactionStorage) CreateTransaction(ctx context.Context, req *pb.Crea
 		{Key: "description", Value: req.Description},
 		{Key: "date", Value: req.Date},
 		{Key: "created_at", Value: created_at},
+		{Key: "updated_at", Value: created_at},
+		{Key: "deleted_at", Value: nil},
 	}
 
 	res, err := transactionCollection.InsertOne(ctx, transactionDoc)

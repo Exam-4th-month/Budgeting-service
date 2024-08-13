@@ -45,6 +45,8 @@ func (s *BudgetStorage) CreateBudget(ctx context.Context, req *pb.CreateBudgetRe
 		{Key: "start_date", Value: req.StartDate},
 		{Key: "end_date", Value: req.EndDate},
 		{Key: "created_at", Value: created_at},
+		{Key: "updated_at", Value: created_at},
+		{Key: "deleted_at", Value: nil},
 	}
 
 	res, err := budgetCollection.InsertOne(ctx, budgetDoc)

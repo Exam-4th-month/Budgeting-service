@@ -44,6 +44,8 @@ func (s *CategoryStorage) CreateCategory(ctx context.Context, req *pb.CreateCate
 		{Key: "name", Value: req.Name},
 		{Key: "type", Value: req.Type},
 		{Key: "created_at", Value: created_at},
+		{Key: "updated_at", Value: created_at},
+		{Key: "deleted_at", Value: nil},
 	}
 
 	res, err := categoryCollection.InsertOne(ctx, categoryDoc)

@@ -47,6 +47,8 @@ func (s *GoalStorage) CreateGoal(ctx context.Context, req *pb.CreateGoalRequest)
 		{Key: "deadline", Value: req.Deadline},
 		{Key: "status", Value: req.Status},
 		{Key: "created_at", Value: created_at},
+		{Key: "updated_at", Value: created_at},
+		{Key: "deleted_at", Value: nil},
 	}
 
 	res, err := goalCollecton.InsertOne(ctx, goalDoc)

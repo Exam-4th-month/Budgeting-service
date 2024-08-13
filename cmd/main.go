@@ -57,9 +57,8 @@ func main() {
 	api := api.New(service)
 
 	go func() {
-		if err := api.RUN(config, service); err != nil {
-			logger.Error("API run error", slog.String("err", err.Error()))
-		}
+		log.Fatalln(api.RUN(config, service))
+
 	}()
 
 	msgbroker.StartToConsume(context.Background(), "application/json")

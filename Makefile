@@ -18,3 +18,6 @@ migrate_force:
 
 migrate_file:
 	migrate create -ext sql -dir migrations -seq create_tables
+
+test:
+	go test -v -cover ./...
