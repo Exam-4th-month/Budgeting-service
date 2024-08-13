@@ -96,13 +96,13 @@ func (m *MsgBroker) consumeMessages(ctx context.Context, messages <-chan amqp.De
 				}
 				response, err = m.service.GoalService.UpdateGoal(ctx, &req)
 			case "notification_created":
-				var req notification_pb.GetNotificationsRequest
+				var req notification_pb.CreateNotificationRequest
 				if err := protojson.Unmarshal(val.Body, &req); err != nil {
 					m.logger.Error("Error while unmarshaling data", "error", err)
 					val.Nack(false, false)
 					continue
 				}
-				response, err = m.service.NotificationService.GetNotifications(ctx, &req)
+				response, err = m.service.NotificationService.CreateNotification(ctx, &req)
 			}
 
 			if err != nil {
