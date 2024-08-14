@@ -29,7 +29,7 @@ func New(service *service.Service) *API {
 }
 
 func (a *API) RUN(config *config.Config, service *service.Service) error {
-	listener, err := net.Listen("tcp", "localhost"+config.Server.Port)
+	listener, err := net.Listen("tcp", "budgeting"+config.Server.Port)
 	if err != nil {
 		return err
 	}

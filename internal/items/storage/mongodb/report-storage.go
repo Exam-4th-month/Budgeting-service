@@ -3,7 +3,6 @@ package mongodb
 import (
 	pb "budgeting-service/genproto/report"
 	"budgeting-service/internal/items/config"
-	"budgeting-service/internal/items/redisservice"
 	"budgeting-service/internal/items/repository"
 	"context"
 	"time"
@@ -17,15 +16,13 @@ import (
 )
 
 type ReportStorage struct {
-	redis   *redisservice.RedisService
 	mongodb *mongo.Database
 	cfg     *config.Config
 	logger  *slog.Logger
 }
 
-func NewReportStorage(redis *redisservice.RedisService, mongodb *mongo.Database, cfg *config.Config, logger *slog.Logger) repository.ReportI {
+func NewReportStorage(mongodb *mongo.Database, cfg *config.Config, logger *slog.Logger) repository.ReportI {
 	return &ReportStorage{
-		redis:   redis,
 		mongodb: mongodb,
 		cfg:     cfg,
 		logger:  logger,

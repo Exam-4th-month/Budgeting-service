@@ -2,7 +2,6 @@ package mongodb
 
 import (
 	"budgeting-service/internal/items/config"
-	"budgeting-service/internal/items/redisservice"
 	"budgeting-service/internal/items/repository"
 	"context"
 	"time"
@@ -18,15 +17,13 @@ import (
 )
 
 type CategoryStorage struct {
-	redis   *redisservice.RedisService
 	mongodb *mongo.Database
 	cfg     *config.Config
 	logger  *slog.Logger
 }
 
-func NewCategoryStorage(redis *redisservice.RedisService, mongodb *mongo.Database, cfg *config.Config, logger *slog.Logger) repository.CategoryI {
+func NewCategoryStorage(mongodb *mongo.Database, cfg *config.Config, logger *slog.Logger) repository.CategoryI {
 	return &CategoryStorage{
-		redis:   redis,
 		mongodb: mongodb,
 		cfg:     cfg,
 		logger:  logger,
@@ -121,7 +118,7 @@ func (s *CategoryStorage) GetCategoryById(ctx context.Context, req *pb.GetCatego
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			s.logger.Error(err.Error())
-			return nil, nil 
+			return nil, nil
 		}
 		s.logger.Error(err.Error())
 		return nil, err
@@ -173,7 +170,7 @@ func (s *CategoryStorage) UpdateCategory(ctx context.Context, req *pb.UpdateCate
 	if res.Err() != nil {
 		if res.Err() == mongo.ErrNoDocuments {
 			s.logger.Error(res.Err().Error())
-			return nil, nil 
+			return nil, nil
 		}
 		s.logger.Error(res.Err().Error())
 		return nil, res.Err()

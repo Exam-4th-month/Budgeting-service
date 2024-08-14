@@ -8,10 +8,8 @@ import (
 	transaction_pb "budgeting-service/genproto/transaction"
 
 	"budgeting-service/internal/items/config"
-	"budgeting-service/internal/items/redisservice"
 	"budgeting-service/internal/items/storage"
 	"budgeting-service/internal/items/storage/mongodb"
-	redisCl "budgeting-service/internal/pkg/redis"
 
 	"context"
 	"testing"
@@ -43,13 +41,7 @@ func setupStorage() (storage.StrorageI, *mongo.Database) {
 		logger.Error("error while connecting postgres:", slog.String("err:", err.Error()))
 	}
 
-	redis, err := redisCl.NewRedisDB(config)
-	if err != nil {
-		logger.Error("error while connecting redis:", slog.String("err:", err.Error()))
-	}
-
 	return storage.New(
-		redisservice.New(redis, logger),
 		db,
 		config,
 		logger,

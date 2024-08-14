@@ -4,7 +4,6 @@ import (
 	"log/slog"
 
 	"budgeting-service/internal/items/config"
-	"budgeting-service/internal/items/redisservice"
 	"budgeting-service/internal/items/repository"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -32,15 +31,15 @@ type Storage struct {
 	transactionRepo  repository.TransactionI
 }
 
-func New(redis *redisservice.RedisService, mongodb *mongo.Database, cfg *config.Config, logger *slog.Logger) StrorageI {
+func New(mongodb *mongo.Database, cfg *config.Config, logger *slog.Logger) StrorageI {
 	return &Storage{
-		accountRepo:      mdb.NewAccountStorage(redis, mongodb, cfg, logger),
-		budgetRepo:       mdb.NewBudgetStorage(redis, mongodb, cfg, logger),
-		categoryRepo:     mdb.NewCategoryStorage(redis, mongodb, cfg, logger),
-		goalRepo:         mdb.NewGoalStorage(redis, mongodb, cfg, logger),
-		notificationRepo: mdb.NewNotificationStorage(redis, mongodb, cfg, logger),
-		reportRepo:       mdb.NewReportStorage(redis, mongodb, cfg, logger),
-		transactionRepo:  mdb.NewTransactionStorage(redis, mongodb, cfg, logger),
+		accountRepo:      mdb.NewAccountStorage(mongodb, cfg, logger),
+		budgetRepo:       mdb.NewBudgetStorage(mongodb, cfg, logger),
+		categoryRepo:     mdb.NewCategoryStorage(mongodb, cfg, logger),
+		goalRepo:         mdb.NewGoalStorage(mongodb, cfg, logger),
+		notificationRepo: mdb.NewNotificationStorage(mongodb, cfg, logger),
+		reportRepo:       mdb.NewReportStorage(mongodb, cfg, logger),
+		transactionRepo:  mdb.NewTransactionStorage(mongodb, cfg, logger),
 	}
 }
 

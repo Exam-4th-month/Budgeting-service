@@ -2,7 +2,6 @@ package mongodb
 
 import (
 	"budgeting-service/internal/items/config"
-	"budgeting-service/internal/items/redisservice"
 	"budgeting-service/internal/items/repository"
 	"context"
 	"time"
@@ -18,15 +17,13 @@ import (
 )
 
 type GoalStorage struct {
-	redis   *redisservice.RedisService
 	mongodb *mongo.Database
 	cfg     *config.Config
 	logger  *slog.Logger
 }
 
-func NewGoalStorage(redis *redisservice.RedisService, mongodb *mongo.Database, cfg *config.Config, logger *slog.Logger) repository.GoalI {
+func NewGoalStorage(mongodb *mongo.Database, cfg *config.Config, logger *slog.Logger) repository.GoalI {
 	return &GoalStorage{
-		redis:   redis,
 		mongodb: mongodb,
 		cfg:     cfg,
 		logger:  logger,

@@ -3,7 +3,6 @@ package mongodb
 import (
 	pb "budgeting-service/genproto/account"
 	"budgeting-service/internal/items/config"
-	"budgeting-service/internal/items/redisservice"
 	"budgeting-service/internal/items/repository"
 	"context"
 	"log"
@@ -18,15 +17,13 @@ import (
 )
 
 type AccountStorage struct {
-	redis   *redisservice.RedisService
 	mongodb *mongo.Database
 	cfg     *config.Config
 	logger  *slog.Logger
 }
 
-func NewAccountStorage(redis *redisservice.RedisService, mongodb *mongo.Database, cfg *config.Config, logger *slog.Logger) repository.AccountI {
+func NewAccountStorage(mongodb *mongo.Database, cfg *config.Config, logger *slog.Logger) repository.AccountI {
 	return &AccountStorage{
-		redis:   redis,
 		mongodb: mongodb,
 		cfg:     cfg,
 		logger:  logger,
@@ -65,11 +62,6 @@ func (s *AccountStorage) CreateAccount(ctx context.Context, req *pb.CreateAccoun
 		Balance:   req.Balance,
 		Currency:  req.Currency,
 		CreatedAt: created_at.String(),
-	}
-
-	if _, err := s.redis.StoreAccountInRedis(ctx, &account); err != nil {
-		s.logger.Error("Error storing account in Redis:", slog.String("err: ", err.Error()))
-		return nil, err
 	}
 
 	return &account, nil
@@ -118,16 +110,6 @@ func (s *AccountStorage) GetAccounts(ctx context.Context, req *pb.GetAccountsReq
 func (s *AccountStorage) GetAccountById(ctx context.Context, req *pb.GetAccountByIdRequest) (*pb.AccountResponse, error) {
 	s.logger.Info("GetAccountById", "req: ", req.Id)
 	accountCollection := s.mongodb.Collection("accounts")
-
-	acc, err := s.redis.GetAccountFromRedis(ctx, req.Id)
-	if err != nil {
-		s.logger.Error("Error getting account from Redis:", slog.String("err: ", err.Error()))
-		return nil, err
-	}
-	if acc != nil {
-		s.logger.Info("Account found in Redis")
-		return acc, nil
-	}
 
 	objID, err := primitive.ObjectIDFromHex(req.Id)
 	if err != nil {

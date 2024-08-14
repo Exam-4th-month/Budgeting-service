@@ -6,15 +6,14 @@ import (
 	"log/slog"
 	"os"
 	"sync"
+	"time"
 
 	"budgeting-service/api"
 	"budgeting-service/internal/items/config"
 	"budgeting-service/internal/items/msgbroker"
-	"budgeting-service/internal/items/redisservice"
 	"budgeting-service/internal/items/service"
 	"budgeting-service/internal/items/storage"
 	mdb "budgeting-service/internal/items/storage/mongodb"
-	redisCl "budgeting-service/internal/pkg/redis"
 )
 
 func main() {
@@ -36,19 +35,13 @@ func main() {
 		logger.Error("Error connecting to MongoDB", slog.String("err", err.Error()))
 	}
 
-	redis, err := redisCl.NewRedisDB(config)
-	if err != nil {
-		logger.Error("Error connecting to Redis", slog.String("err", err.Error()))
-	}
-
 	service := service.New(storage.New(
-		redisservice.New(redis, logger),
 		db,
 		config,
 		logger,
 	), logger)
 
-	// time.Sleep(10 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	msgBrokers := msgbroker.InitMessageBroker(config)
 

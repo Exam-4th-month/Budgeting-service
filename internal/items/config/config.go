@@ -10,7 +10,6 @@ type (
 	Config struct {
 		Server  ServerConfig
 		MongoDb MongoDbConfig
-		Redis   RedisConfig
 		JWT     JWTConfig
 		Kafka   KafkaConfig
 	}
@@ -28,10 +27,6 @@ type (
 		Password string
 		DBName   string
 	}
-	RedisConfig struct {
-		Host string
-		Port string
-	}
 	KafkaConfig struct {
 		Broker string
 	}
@@ -48,8 +43,6 @@ func (c *Config) Load() error {
 	c.MongoDb.User = os.Getenv("DB_USER")
 	c.MongoDb.Password = os.Getenv("DB_PASSWORD")
 	c.MongoDb.DBName = os.Getenv("DB_NAME")
-	c.Redis.Host = os.Getenv("REDIS_HOST")
-	c.Redis.Port = os.Getenv("REDIS_PORT")
 	c.JWT.SecretKey = os.Getenv("JWT_SECRET_KEY")
 	c.Kafka.Broker = os.Getenv("KAFKA_BROKER_URI")
 
