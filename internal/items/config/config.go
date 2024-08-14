@@ -8,11 +8,11 @@ import (
 
 type (
 	Config struct {
-		Server        ServerConfig
-		MongoDb      MongoDbConfig
-		Redis         RedisConfig
-		JWT           JWTConfig
-		RabbitMQ      RabbitMQConfig
+		Server  ServerConfig
+		MongoDb MongoDbConfig
+		Redis   RedisConfig
+		JWT     JWTConfig
+		Kafka   KafkaConfig
 	}
 	JWTConfig struct {
 		SecretKey string
@@ -32,8 +32,8 @@ type (
 		Host string
 		Port string
 	}
-	RabbitMQConfig struct {
-		RabbitMQ string
+	KafkaConfig struct {
+		Broker string
 	}
 )
 
@@ -51,7 +51,7 @@ func (c *Config) Load() error {
 	c.Redis.Host = os.Getenv("REDIS_HOST")
 	c.Redis.Port = os.Getenv("REDIS_PORT")
 	c.JWT.SecretKey = os.Getenv("JWT_SECRET_KEY")
-	c.RabbitMQ.RabbitMQ = os.Getenv("RABBITMQ_URI")
+	c.Kafka.Broker = os.Getenv("KAFKA_BROKER_URI")
 
 	return nil
 }

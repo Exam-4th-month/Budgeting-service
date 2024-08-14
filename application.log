@@ -1,6 +1,66 @@
-{"time":"2024-08-13T19:09:04.292995257+05:00","level":"INFO","msg":"Shutting down, waiting for consumers to finish"}
-{"time":"2024-08-13T19:09:04.293177775+05:00","level":"INFO","msg":"Context done, stopping consumer","consumer":"goal_progress_updated"}
-{"time":"2024-08-13T19:09:04.293209515+05:00","level":"INFO","msg":"Context done, stopping consumer","consumer":"budget_updated"}
-{"time":"2024-08-13T19:09:04.293228144+05:00","level":"INFO","msg":"Context done, stopping consumer","consumer":"notification_created"}
-{"time":"2024-08-13T19:09:04.293244977+05:00","level":"INFO","msg":"Context done, stopping consumer","consumer":"transaction_created"}
-{"time":"2024-08-13T19:09:04.293264226+05:00","level":"INFO","msg":"All consumers have stopped"}
+{"time":"2024-08-14T16:35:55.037667385+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:35:55.037794174+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:35:55.037830281+05:00","level":"ERROR","msg":"error while parsing start date:","err":"parsing time \"Hello\" as \"2006-01-02\": cannot parse \"Hello\" as \"2006\""}
+{"time":"2024-08-14T16:36:23.482547266+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:36:23.48264262+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:37:52.006305587+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:37:52.006423662+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:40:56.792712655+05:00","level":"INFO","msg":"GetIncomeReport"}
+{"time":"2024-08-14T16:40:56.792809006+05:00","level":"INFO","msg":"GetIncomeReport"}
+{"time":"2024-08-14T16:42:04.352591703+05:00","level":"INFO","msg":"GetAccounts","req":{"user_id":"1b1dc32c-8553-4df9-a1e8-125e2dc3c21e"}}
+{"time":"2024-08-14T16:42:04.352768053+05:00","level":"INFO","msg":"GetAccounts","req":{"user_id":"1b1dc32c-8553-4df9-a1e8-125e2dc3c21e"}}
+{"time":"2024-08-14T16:46:36.919545377+05:00","level":"INFO","msg":"GetIncomeReport"}
+{"time":"2024-08-14T16:46:36.919602059+05:00","level":"INFO","msg":"GetIncomeReport"}
+{"time":"2024-08-14T16:47:09.499220335+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:09.499331874+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:10.218221827+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:10.218345098+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:10.518872748+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:10.519005784+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:10.816586097+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:10.816711325+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:11.116771676+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:11.116867134+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:11.41665983+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:11.416769064+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:11.709684423+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:11.709793915+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:12.057812506+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:12.05791969+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:12.912707303+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:12.91284173+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:13.223569583+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:13.223672155+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:13.518952966+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:13.519080026+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:13.847283481+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:13.847421916+05:00","level":"INFO","msg":"GetSpendingReport"}
+{"time":"2024-08-14T16:47:37.444964757+05:00","level":"INFO","msg":"GetIncomeReport"}
+{"time":"2024-08-14T16:47:37.445069746+05:00","level":"INFO","msg":"GetIncomeReport"}
+{"time":"2024-08-14T16:47:37.445101205+05:00","level":"ERROR","msg":"error while parsing start date:","err":"parsing time \"Hello\" as \"2006-01-02\": cannot parse \"Hello\" as \"2006\""}
+{"time":"2024-08-14T16:47:48.304297251+05:00","level":"INFO","msg":"GetIncomeReport"}
+{"time":"2024-08-14T16:47:48.304396286+05:00","level":"INFO","msg":"GetIncomeReport"}
+{"time":"2024-08-14T16:49:27.255179931+05:00","level":"INFO","msg":"GetIncomeReport"}
+{"time":"2024-08-14T16:49:27.255234182+05:00","level":"INFO","msg":"GetIncomeReport"}
+{"time":"2024-08-14T16:52:40.722878099+05:00","level":"INFO","msg":"CreateTransaction","req":{"user_id":"1b1dc32c-8553-4df9-a1e8-125e2dc3c21e","account_id":"1212ed3d","category_id":"dlkejbd3892bjd","amount":100,"type":"income","description":"string","date":"2024-08-14"}}
+{"time":"2024-08-14T16:52:40.723163639+05:00","level":"INFO","msg":"CreateTransaction","req":{"user_id":"1b1dc32c-8553-4df9-a1e8-125e2dc3c21e","account_id":"1212ed3d","category_id":"dlkejbd3892bjd","amount":100,"type":"income","description":"string","date":"2024-08-14"}}
+{"time":"2024-08-14T16:52:40.724481627+05:00","level":"INFO","msg":"Successfully processed message","topic":"transaction_created"}
+{"time":"2024-08-14T16:52:41.725295622+05:00","level":"INFO","msg":"CreateNotification","req":"user_id:\"1b1dc32c-8553-4df9-a1e8-125e2dc3c21e\" message:\"Transaction of 100.00 has been created for account ID: 1212ed3d\""}
+{"time":"2024-08-14T16:52:41.725355525+05:00","level":"INFO","msg":"CreateNotification","req":"user_id:\"1b1dc32c-8553-4df9-a1e8-125e2dc3c21e\" message:\"Transaction of 100.00 has been created for account ID: 1212ed3d\""}
+{"time":"2024-08-14T16:52:41.726471554+05:00","level":"INFO","msg":"Successfully processed message","topic":"notification_created"}
+{"time":"2024-08-14T16:53:23.932343352+05:00","level":"INFO","msg":"GetIncomeReport"}
+{"time":"2024-08-14T16:53:23.932446812+05:00","level":"INFO","msg":"GetIncomeReport"}
+{"time":"2024-08-14T16:53:23.93366431+05:00","level":"ERROR","msg":"error while decoding transaction:","err":"error decoding key category_id: an ObjectID string must be exactly 12 bytes long (got 14)"}
+{"time":"2024-08-14T16:54:12.787026888+05:00","level":"INFO","msg":"CreateCategory","req":{"user_id":"1b1dc32c-8553-4df9-a1e8-125e2dc3c21e","name":"string","type":"string"}}
+{"time":"2024-08-14T16:54:12.787151228+05:00","level":"INFO","msg":"CreateCategory","req":"user_id:\"1b1dc32c-8553-4df9-a1e8-125e2dc3c21e\" name:\"string\" type:\"string\""}
+{"time":"2024-08-14T16:54:47.296871344+05:00","level":"INFO","msg":"CreateTransaction","req":{"user_id":"1b1dc32c-8553-4df9-a1e8-125e2dc3c21e","account_id":"1212ed3d","category_id":"66bc9ae423d5767f7ee77453","amount":100,"type":"income","description":"string","date":"2024-08-14"}}
+{"time":"2024-08-14T16:54:47.296965417+05:00","level":"INFO","msg":"CreateTransaction","req":{"user_id":"1b1dc32c-8553-4df9-a1e8-125e2dc3c21e","account_id":"1212ed3d","category_id":"66bc9ae423d5767f7ee77453","amount":100,"type":"income","description":"string","date":"2024-08-14"}}
+{"time":"2024-08-14T16:54:47.297975005+05:00","level":"INFO","msg":"Successfully processed message","topic":"transaction_created"}
+{"time":"2024-08-14T16:54:48.300499361+05:00","level":"INFO","msg":"CreateNotification","req":"user_id:\"1b1dc32c-8553-4df9-a1e8-125e2dc3c21e\" message:\"Transaction of 100.00 has been created for account ID: 1212ed3d\""}
+{"time":"2024-08-14T16:54:48.300577052+05:00","level":"INFO","msg":"CreateNotification","req":"user_id:\"1b1dc32c-8553-4df9-a1e8-125e2dc3c21e\" message:\"Transaction of 100.00 has been created for account ID: 1212ed3d\""}
+{"time":"2024-08-14T16:54:48.301915749+05:00","level":"INFO","msg":"Successfully processed message","topic":"notification_created"}
+{"time":"2024-08-14T16:55:05.806693756+05:00","level":"INFO","msg":"GetIncomeReport"}
+{"time":"2024-08-14T16:55:05.806770053+05:00","level":"INFO","msg":"GetIncomeReport"}
+{"time":"2024-08-14T16:55:05.807461258+05:00","level":"ERROR","msg":"error while decoding transaction:","err":"error decoding key category_id: an ObjectID string must be exactly 12 bytes long (got 14)"}
+{"time":"2024-08-14T16:55:33.423926665+05:00","level":"INFO","msg":"GetIncomeReport"}
+{"time":"2024-08-14T16:55:33.423981661+05:00","level":"INFO","msg":"GetIncomeReport"}

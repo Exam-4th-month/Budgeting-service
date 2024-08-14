@@ -48,18 +48,17 @@ func main() {
 		logger,
 	), logger)
 
-	msgs, conn, ch := msgbroker.InitMessageBroker(config)
-	defer conn.Close()
-	defer ch.Close()
+	// time.Sleep(10 * time.Second)
 
-	msgbroker := msgbroker.New(service, logger, msgs, &sync.WaitGroup{}, 4)
+	msgBrokers := msgbroker.InitMessageBroker(config)
+
+	msgBroker := msgbroker.New(service, logger, msgBrokers, &sync.WaitGroup{})
 
 	api := api.New(service)
 
 	go func() {
 		log.Fatalln(api.RUN(config, service))
-
 	}()
 
-	msgbroker.StartToConsume(context.Background(), "application/json")
+	msgBroker.StartToConsume(context.Background())
 }

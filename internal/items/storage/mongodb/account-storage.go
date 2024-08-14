@@ -6,6 +6,7 @@ import (
 	"budgeting-service/internal/items/redisservice"
 	"budgeting-service/internal/items/repository"
 	"context"
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -103,7 +104,6 @@ func (s *AccountStorage) GetAccounts(ctx context.Context, req *pb.GetAccountsReq
 			Balance:   float32(account["balance"].(float64)),
 			Currency:  account["currency"].(string),
 			CreatedAt: account["created_at"].(primitive.DateTime).Time().String(),
-			UpdatedAt: account["updated_at"].(primitive.DateTime).Time().String(),
 		})
 	}
 
@@ -119,14 +119,14 @@ func (s *AccountStorage) GetAccountById(ctx context.Context, req *pb.GetAccountB
 	s.logger.Info("GetAccountById", "req: ", req.Id)
 	accountCollection := s.mongodb.Collection("accounts")
 
-	athlete, err := s.redis.GetAccountFromRedis(ctx, req.Id)
+	acc, err := s.redis.GetAccountFromRedis(ctx, req.Id)
 	if err != nil {
 		s.logger.Error("Error getting account from Redis:", slog.String("err: ", err.Error()))
 		return nil, err
 	}
-	if athlete != nil {
+	if acc != nil {
 		s.logger.Info("Account found in Redis")
-		return athlete, nil
+		return acc, nil
 	}
 
 	objID, err := primitive.ObjectIDFromHex(req.Id)
@@ -142,9 +142,11 @@ func (s *AccountStorage) GetAccountById(ctx context.Context, req *pb.GetAccountB
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			s.logger.Error(err.Error())
+			log.Println("err 1")
 			return nil, nil
 		}
 		s.logger.Error(err.Error())
+		log.Println("err 2")
 		return nil, err
 	}
 
@@ -156,7 +158,6 @@ func (s *AccountStorage) GetAccountById(ctx context.Context, req *pb.GetAccountB
 		Balance:   float32(account["balance"].(float64)),
 		Currency:  account["currency"].(string),
 		CreatedAt: account["created_at"].(primitive.DateTime).Time().String(),
-		UpdatedAt: account["updated_at"].(primitive.DateTime).Time().String(),
 	}, nil
 }
 

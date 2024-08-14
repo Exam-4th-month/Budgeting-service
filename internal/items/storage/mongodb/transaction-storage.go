@@ -39,6 +39,12 @@ func (s *TransactionStorage) CreateTransaction(ctx context.Context, req *pb.Crea
 	transactionCollection := s.mongodb.Collection("transactions")
 	created_at := time.Now()
 
+	date, err := time.Parse("2006-01-02", req.Date)
+	if err != nil {
+		s.logger.Error("Error parsing start date", slog.Any("error", err))
+		return nil, err
+	}
+
 	transactionDoc := bson.D{
 		{Key: "user_id", Value: req.UserId},
 		{Key: "account_id", Value: req.AccountId},
@@ -46,7 +52,7 @@ func (s *TransactionStorage) CreateTransaction(ctx context.Context, req *pb.Crea
 		{Key: "amount", Value: req.Amount},
 		{Key: "type", Value: req.Type},
 		{Key: "description", Value: req.Description},
-		{Key: "date", Value: req.Date},
+		{Key: "date", Value: date},
 		{Key: "created_at", Value: created_at},
 		{Key: "updated_at", Value: created_at},
 		{Key: "deleted_at", Value: nil},
@@ -112,9 +118,9 @@ func (s *TransactionStorage) GetTransactions(ctx context.Context, req *pb.GetTra
 			Amount:      float32(transaction["amount"].(float64)),
 			Type:        transaction["type"].(string),
 			Description: transaction["description"].(string),
-			Date:        transaction["date"].(string),
+			Date:        transaction["date"].(primitive.DateTime).Time().String(),
 			CreatedAt:   transaction["created_at"].(primitive.DateTime).Time().String(),
-			UpdatedAt:   transaction["updated_at"].(primitive.DateTime).Time().String(),
+			// UpdatedAt:   transaction["updated_at"].(primitive.DateTime).Time().String(),
 		})
 	}
 
@@ -158,9 +164,9 @@ func (s *TransactionStorage) GetTransactionById(ctx context.Context, req *pb.Get
 		Amount:      float32(transaction["amount"].(float64)),
 		Type:        transaction["type"].(string),
 		Description: transaction["description"].(string),
-		Date:        transaction["date"].(string),
+		Date:        transaction["date"].(primitive.DateTime).Time().String(),
 		CreatedAt:   transaction["created_at"].(primitive.DateTime).Time().String(),
-		UpdatedAt:   transaction["updated_at"].(primitive.DateTime).Time().String(),
+		// UpdatedAt:   transaction["updated_at"].(primitive.DateTime).Time().String(),
 	}, nil
 }
 
@@ -187,7 +193,12 @@ func (s *TransactionStorage) UpdateTransaction(ctx context.Context, req *pb.Upda
 		updateFields = append(updateFields, bson.E{Key: "description", Value: req.Description})
 	}
 	if req.Date != "" {
-		updateFields = append(updateFields, bson.E{Key: "date", Value: req.Date})
+		date, err := time.Parse("2006-01-02", req.Date)
+		if err != nil {
+			s.logger.Error("Error parsing start date", slog.Any("error", err))
+			return nil, err
+		}
+		updateFields = append(updateFields, bson.E{Key: "date", Value: date})
 	}
 	if len(updateFields) > 0 {
 		updateFields = append(updateFields, bson.E{Key: "updated_at", Value: time.Now()})
@@ -224,7 +235,7 @@ func (s *TransactionStorage) UpdateTransaction(ctx context.Context, req *pb.Upda
 		Amount:      float32(updatedTransaction["amount"].(float64)),
 		Type:        updatedTransaction["type"].(string),
 		Description: updatedTransaction["description"].(string),
-		Date:        updatedTransaction["date"].(string),
+		Date:        updatedTransaction["date"].(primitive.DateTime).Time().String(),
 		CreatedAt:   updatedTransaction["created_at"].(primitive.DateTime).Time().String(),
 		UpdatedAt:   updatedTransaction["updated_at"].(primitive.DateTime).Time().String(),
 	}, nil

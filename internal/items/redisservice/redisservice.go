@@ -2,7 +2,6 @@ package redisservice
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"time"
@@ -10,6 +9,7 @@ import (
 	pb "budgeting-service/genproto/account"
 
 	"github.com/go-redis/redis/v8"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 type (
@@ -28,7 +28,7 @@ func New(redisDb *redis.Client, logger *slog.Logger) *RedisService {
 
 func (r *RedisService) StoreAccountInRedis(ctx context.Context, account *pb.AccountResponse) (*pb.AccountResponse, error) {
 	key := fmt.Sprintf("account:%s", account.Id)
-	athleteJSON, err := json.Marshal(account)
+	athleteJSON, err := protojson.Marshal(account)
 	if err != nil {
 		r.logger.Error("Error marshalling account:", slog.String("err: ", err.Error()))
 		return nil, err
@@ -53,7 +53,7 @@ func (r *RedisService) GetAccountFromRedis(ctx context.Context, id string) (*pb.
 	}
 
 	var athlete pb.AccountResponse
-	if err := json.Unmarshal([]byte(val), &athlete); err != nil {
+	if err := protojson.Unmarshal([]byte(val), &athlete); err != nil {
 		r.logger.Error("Error unmarshalling account:", slog.String("err: ", err.Error()))
 		return nil, err
 	}

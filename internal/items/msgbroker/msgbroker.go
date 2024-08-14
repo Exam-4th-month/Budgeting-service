@@ -3,115 +3,96 @@ package msgbroker
 import (
 	"context"
 	"log/slog"
-	"os"
-	"os/signal"
 	"sync"
-	"syscall"
 
 	"budgeting-service/internal/items/service"
+
+	"github.com/segmentio/kafka-go"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 
 	budget_pb "budgeting-service/genproto/budget"
 	goal_pb "budgeting-service/genproto/goal"
 	notification_pb "budgeting-service/genproto/notification"
 	transaction_pb "budgeting-service/genproto/transaction"
-
-	amqp "github.com/rabbitmq/amqp091-go"
-	"google.golang.org/protobuf/encoding/protojson"
-	"google.golang.org/protobuf/proto"
 )
 
 type MsgBroker struct {
-	service          *service.Service
-	msgs             *MsgBrokers
-	logger           *slog.Logger
-	wg               *sync.WaitGroup
-	numberOfServices int
+	service *service.Service
+	readers *MsgBrokers
+	logger  *slog.Logger
+	wg      *sync.WaitGroup
 }
 
-func New(service *service.Service,
-	logger *slog.Logger,
-	msgs *MsgBrokers,
-	wg *sync.WaitGroup,
-	numberOfServices int) *MsgBroker {
+func New(service *service.Service, logger *slog.Logger, readers *MsgBrokers, wg *sync.WaitGroup) *MsgBroker {
 	return &MsgBroker{
-		service:          service,
-		msgs:             msgs,
-		logger:           logger,
-		wg:               wg,
-		numberOfServices: numberOfServices,
+		service: service,
+		readers: readers,
+		logger:  logger,
+		wg:      wg,
 	}
 }
 
-func (m *MsgBroker) StartToConsume(ctx context.Context, contentType string) {
-	m.wg.Add(m.numberOfServices)
+func (m *MsgBroker) StartToConsume(ctx context.Context) {
+	m.wg.Add(4)
+
 	consumerCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	go m.consumeMessages(consumerCtx, m.msgs.Transaction_created, "transaction_created")
-	go m.consumeMessages(consumerCtx, m.msgs.Budget_updated, "budget_updated")
-	go m.consumeMessages(consumerCtx, m.msgs.Goal_progress_updated, "goal_progress_updated")
-	go m.consumeMessages(consumerCtx, m.msgs.Notification_created, "notification_created")
+	go m.consumeMessages(consumerCtx, m.readers.TransactionCreated, "transaction_created")
+	go m.consumeMessages(consumerCtx, m.readers.BudgetUpdated, "budget_updated")
+	go m.consumeMessages(consumerCtx, m.readers.GoalProgressUpdated, "goal_progress_updated")
+	go m.consumeMessages(consumerCtx, m.readers.NotificationCreated, "notification_created")
 
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	<-c
-
-	m.logger.Info("Shutting down, waiting for consumers to finish")
-	cancel()
-	m.wg.Wait()
+	<-consumerCtx.Done()
 	m.logger.Info("All consumers have stopped")
 }
 
-func (m *MsgBroker) consumeMessages(ctx context.Context, messages <-chan amqp.Delivery, logPrefix string) {
+func (m *MsgBroker) consumeMessages(ctx context.Context, reader *kafka.Reader, logPrefix string) {
 	defer m.wg.Done()
 	for {
 		select {
-		case val := <-messages:
+		case <-ctx.Done():
+			m.logger.Info("Context done, stopping consumer", "consumer", logPrefix)
+			return
+		default:
+			msg, err := reader.ReadMessage(ctx)
+			if err != nil {
+				m.logger.Error("Error reading message", "error", err, "topic", logPrefix)
+				return
+			}
+
 			var response proto.Message
-			var err error
+			var errUnmarshal error
 
 			switch logPrefix {
 			case "transaction_created":
 				var req transaction_pb.CreateTransactionRequest
-				if err := protojson.Unmarshal(val.Body, &req); err != nil {
-					m.logger.Error("Error while unmarshaling data", "error", err)
-					val.Nack(false, false)
-					continue
-				}
+				errUnmarshal = protojson.Unmarshal(msg.Value, &req)
 				response, err = m.service.TransactionService.CreateTransaction(ctx, &req)
 			case "budget_updated":
 				var req budget_pb.UpdateBudgetRequest
-				if err := protojson.Unmarshal(val.Body, &req); err != nil {
-					m.logger.Error("Error while unmarshaling data", "error", err)
-					val.Nack(false, false)
-					continue
-				}
+				errUnmarshal = protojson.Unmarshal(msg.Value, &req)
 				response, err = m.service.BudgetService.UpdateBudget(ctx, &req)
 			case "goal_progress_updated":
 				var req goal_pb.UpdateGoalRequest
-				if err := protojson.Unmarshal(val.Body, &req); err != nil {
-					m.logger.Error("Error while unmarshaling data", "error", err)
-					val.Nack(false, false)
-					continue
-				}
+				errUnmarshal = protojson.Unmarshal(msg.Value, &req)
 				response, err = m.service.GoalService.UpdateGoal(ctx, &req)
 			case "notification_created":
 				var req notification_pb.CreateNotificationRequest
-				if err := protojson.Unmarshal(val.Body, &req); err != nil {
-					m.logger.Error("Error while unmarshaling data", "error", err)
-					val.Nack(false, false)
-					continue
-				}
+				errUnmarshal = protojson.Unmarshal(msg.Value, &req)
 				response, err = m.service.NotificationService.CreateNotification(ctx, &req)
+			}
+
+			if errUnmarshal != nil {
+				m.logger.Error("Error while unmarshaling data", "error", errUnmarshal)
+				continue
 			}
 
 			if err != nil {
 				m.logger.Error("Failed in %s: %s\n", logPrefix, err.Error())
-				val.Nack(false, false)
 				continue
 			}
-
-			val.Ack(false)
 
 			_, err = proto.Marshal(response)
 			if err != nil {
@@ -119,9 +100,7 @@ func (m *MsgBroker) consumeMessages(ctx context.Context, messages <-chan amqp.De
 				continue
 			}
 
-		case <-ctx.Done():
-			m.logger.Info("Context done, stopping consumer", "consumer", logPrefix)
-			return
+			m.logger.Info("Successfully processed message", "topic", logPrefix)
 		}
 	}
 }
